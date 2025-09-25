@@ -1,0 +1,10 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-compass",
+      "description": "A stylized compass on a map, representing guidance.",
+      "imageUrl": "https://images.unsplash.com/photo-1603623898160-a611b90151ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21wYXNzJTIwbWFwfGVufDB8fHx8MTc1ODY5MDcyMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "compass map"
+    }
+  ]
+}
