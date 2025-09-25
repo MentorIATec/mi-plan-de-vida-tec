@@ -32,20 +32,12 @@ export async function saveLifePlan(data: LifePlanData) {
     if (data.id) {
         // This is an update
         const docRef = doc(firestore, 'lifePlans', data.id);
-        await updateDoc(docRef, {
-            ...dataToSave,
-            user: JSON.stringify(dataToSave.user),
-            answers: JSON.stringify(dataToSave.answers),
-        });
+        await updateDoc(docRef, dataToSave);
         return { ...data, id: data.id };
     } else {
         // This is a new document
         dataToSave.createdAt = serverTimestamp();
-        const docRef = await addDoc(lifePlansCollection, {
-            ...dataToSave,
-            user: JSON.stringify(dataToSave.user),
-            answers: JSON.stringify(dataToSave.answers),
-        });
+        const docRef = await addDoc(lifePlansCollection, dataToSave);
         return { ...data, id: docRef.id };
     }
   } catch (error) {
@@ -67,8 +59,8 @@ export async function getLifePlans(): Promise<LifePlanData[]> {
 
             lifePlans.push({ 
                 id: doc.id,
-                user: JSON.parse(docData.user),
-                answers: JSON.parse(docData.answers),
+                user: docData.user,
+                answers: docData.answers,
                 purposeStatement: docData.purposeStatement,
                 purposeImage: docData.purposeImage,
                 createdAt: createdAt,
@@ -86,29 +78,25 @@ export async function getLifePlanByStudentId(studentId: string): Promise<LifePla
     try {
         const lifePlansCollection = collection(firestore, 'lifePlans');
         
-        const q = query(lifePlansCollection);
+        const q = query(lifePlansCollection, where("user.studentId", "==", studentId));
         const querySnapshot = await getDocs(q);
         
-        let foundPlan: LifePlanData | null = null;
-        querySnapshot.forEach((doc) => {
-            if (foundPlan) return; // Already found a match
-            
-            const docData = doc.data();
-            const user = JSON.parse(docData.user) as UserInfo;
-            if (user.studentId === studentId) {
-                const createdAt = docData.createdAt?.toDate ? docData.createdAt.toDate().toISOString() : null;
-                foundPlan = {
-                    id: doc.id,
-                    user: user,
-                    answers: JSON.parse(docData.answers),
-                    purposeStatement: docData.purposeStatement,
-                    purposeImage: docData.purposeImage,
-                    createdAt: createdAt,
-                };
-            }
-        });
+        if (querySnapshot.empty) {
+            return null;
+        }
+
+        const doc = querySnapshot.docs[0];
+        const docData = doc.data();
+        const createdAt = docData.createdAt?.toDate ? docData.createdAt.toDate().toISOString() : null;
         
-        return foundPlan;
+        return {
+            id: doc.id,
+            user: docData.user,
+            answers: docData.answers,
+            purposeStatement: docData.purposeStatement,
+            purposeImage: docData.purposeImage,
+            createdAt: createdAt,
+        };
 
     } catch (error) {
         console.error("Error fetching document by student ID: ", error);

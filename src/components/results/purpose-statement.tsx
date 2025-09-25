@@ -98,9 +98,12 @@ export function PurposeStatement() {
       setIsSaved(true);
       toast({
         title: '¡Propósito Guardado!',
-        description: 'Tu plan de vida ha sido guardado en esta aplicación.',
+        description: 'Tu plan de vida ha sido guardado y actualizado.',
       });
-      setIsAlertOpen(true); // Open the alert dialog on successful save
+      // Only show the MiVidaTec alert if it's the first time saving
+      if (!lifePlan.id) {
+        setIsAlertOpen(true);
+      }
     } catch (error) {
       console.error("Error saving life plan:", error);
       toast({
